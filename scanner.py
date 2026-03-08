@@ -33,6 +33,7 @@ from pathlib import Path
 from typing import Any, Dict, Iterable, List, Set, Tuple
 
 
+SCRIPT_DIR = Path(__file__).resolve().parent
 DEFAULT_IOC_PATH = Path("indicators/default_iocs.json")
 
 
@@ -137,6 +138,18 @@ def regex_match(value: str, pattern: str) -> bool:
         return re.search(pattern, value, flags=re.IGNORECASE) is not None
     except re.error:
         return False
+
+
+def resolve_ioc_path(ioc_value: str) -> Path:
+    candidate = Path(ioc_value).expanduser()
+    if candidate.exists() or candidate.is_absolute():
+        return candidate
+
+    script_relative = SCRIPT_DIR / candidate
+    if script_relative.exists():
+        return script_relative
+
+    return candidate
 
 
 def load_iocs(path: Path) -> Dict[str, Any]:
@@ -1415,7 +1428,10 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--ioc",
         default=str(DEFAULT_IOC_PATH),
-        help=f"Path to IOC/rule JSON (default: {DEFAULT_IOC_PATH})",
+        help=(
+            f"Path to IOC/rule JSON (default: {DEFAULT_IOC_PATH}, "
+            "resolved from current directory then script directory)"
+        ),
     )
     parser.add_argument(
         "--json-out",
@@ -1480,9 +1496,10 @@ def parse_args() -> argparse.Namespace:
 def main() -> int:
     args = parse_args()
     start = time.time()
+    resolved_ioc_path = resolve_ioc_path(args.ioc)
 
     try:
-        iocs = load_iocs(Path(args.ioc))
+        iocs = load_iocs(resolved_ioc_path)
     except Exception as exc:
         print(f"[ERROR] Failed to load IOC file: {exc}", file=sys.stderr)
         return 2
@@ -1523,7 +1540,7 @@ def main() -> int:
 
     out_path = Path(args.json_out)
     try:
-        write_json_report(out_path, findings, summary, args.ioc, elapsed, program_anomalies)
+        write_json_report(out_path, findings, summary, str(resolved_ioc_path), elapsed, program_anomalies)
         print(f"\nJSON report written to: {out_path}")
     except Exception as exc:
         print(f"[WARN] Failed to write JSON report: {exc}", file=sys.stderr)
@@ -1532,14 +1549,14 @@ def main() -> int:
     html_out_path = Path(args.html_out)
     program_html_out_path = Path(args.program_html_out)
     try:
-        write_html_report(html_out_path, findings, summary, args.ioc, elapsed, program_html_out_path)
+        write_html_report(html_out_path, findings, summary, str(resolved_ioc_path), elapsed, program_html_out_path)
         print(f"HTML report written to: {html_out_path}")
     except Exception as exc:
         print(f"[WARN] Failed to write HTML report: {exc}", file=sys.stderr)
         return 1
 
     try:
-        write_program_html_report(program_html_out_path, program_anomalies, args.ioc, elapsed)
+        write_program_html_report(program_html_out_path, program_anomalies, str(resolved_ioc_path), elapsed)
         print(f"Program anomaly HTML report written to: {program_html_out_path}")
     except Exception as exc:
         print(f"[WARN] Failed to write program anomaly HTML report: {exc}", file=sys.stderr)
