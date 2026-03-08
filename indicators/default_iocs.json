@@ -70,6 +70,101 @@
       "description": "Process command line references FiveM/GTA target"
     }
   ],
+  "program_anomaly_rules": {
+    "suspicious_path_patterns": [
+      "C:\\Users\\*\\AppData\\Local\\Temp\\*.exe",
+      "C:\\Users\\*\\AppData\\Roaming\\*.exe",
+      "C:\\Users\\*\\Downloads\\*.exe",
+      "C:\\Users\\*\\Desktop\\*.exe",
+      "C:\\ProgramData\\*.exe",
+      "C:\\Windows\\Temp\\*.exe",
+      "C:\\$Recycle.Bin\\*\\*.exe"
+    ],
+    "trusted_path_patterns": [
+      "C:\\Windows\\*.exe",
+      "C:\\Windows\\System32\\*.exe",
+      "C:\\Windows\\SysWOW64\\*.exe",
+      "C:\\Program Files\\*\\*.exe",
+      "C:\\Program Files (x86)\\*\\*.exe"
+    ],
+    "critical_signature_statuses": [
+      "HashMismatch",
+      "NotTrusted",
+      "LookupError"
+    ],
+    "unsigned_signature_statuses": [
+      "NotSigned",
+      "UnknownError",
+      "NotSupportedFileFormat",
+      "MissingFile"
+    ],
+    "trusted_publisher_keywords": [
+      "microsoft",
+      "nvidia",
+      "amd",
+      "intel",
+      "google",
+      "valve",
+      "discord",
+      "epic games",
+      "rockstar games",
+      "take-two"
+    ],
+    "name_regex_rules": [
+      {
+        "id": "name_random_hex",
+        "pattern": "^[a-f0-9]{8,}\\.exe$",
+        "severity": "medium",
+        "description": "Process name appears random or hex-like"
+      },
+      {
+        "id": "name_guid_like",
+        "pattern": "^\\{?[0-9a-f]{8}\\-[0-9a-f]{4}\\-[0-9a-f]{4}\\-[0-9a-f]{4}\\-[0-9a-f]{12}\\}?\\.exe$",
+        "severity": "high",
+        "description": "Process name resembles a GUID-like executable"
+      }
+    ],
+    "cmdline_regex_rules": [
+      {
+        "id": "cmd_powershell_encoded",
+        "pattern": "powershell(\\.exe)?\\s+.*(-enc|-encodedcommand)\\s+",
+        "severity": "high",
+        "description": "Encoded PowerShell command line detected"
+      },
+      {
+        "id": "cmd_hidden_window",
+        "pattern": "(-windowstyle|/windowstyle)\\s+hidden|(-w|/w)\\s+hidden",
+        "severity": "medium",
+        "description": "Hidden window execution flag detected"
+      }
+    ],
+    "custom_rules": [
+      {
+        "id": "custom_userprofile_svchost",
+        "pattern": "*\\Users\\*\\*\\svchost.exe",
+        "target_field": "path",
+        "mode": "wildcard",
+        "severity": "high",
+        "description": "svchost.exe running outside Windows system directories"
+      },
+      {
+        "id": "custom_single_char_exe",
+        "pattern": "^[a-z]\\.exe$",
+        "target_field": "name",
+        "mode": "regex",
+        "severity": "medium",
+        "description": "Single-character executable name is unusual"
+      },
+      {
+        "id": "custom_cmdline_injection_keywords",
+        "pattern": "manual\\s*map|reflective|loadlibrary|createremotethread",
+        "target_field": "cmdline",
+        "mode": "regex",
+        "severity": "high",
+        "description": "Command line contains injection-related keywords"
+      }
+    ]
+  },
   "service_rules": [
     {
       "id": "svc_dbk_driver",

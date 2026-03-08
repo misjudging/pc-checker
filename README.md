@@ -10,10 +10,12 @@ The scanner checks for IOC/rule matches across:
 - Startup registry locations
 - File-system artifacts (glob/exact path rules)
 - Boot configuration flags often associated with bypass activity
+- Unusual or unsigned running program anomalies (signature status + path/behavior heuristics)
 
 Outputs:
 - JSON report
-- HTML report for quick review
+- Main HTML detections report
+- Separate HTML report focused on unusual/unsigned programs
 
 ## Important note
 
@@ -40,6 +42,7 @@ python .\scanner.py
 Default output paths:
 - JSON: `%USERPROFILE%\OneDrive\Documents\github\pc-checker\latest_report.json`
 - HTML: `%USERPROFILE%\OneDrive\Documents\github\pc-checker\latest_report.html`
+- Program anomalies HTML: `%USERPROFILE%\OneDrive\Documents\github\pc-checker\program_anomalies.html`
 
 If OneDrive is unavailable, it falls back to:
 - `%USERPROFILE%\Documents\github\pc-checker\...`
@@ -50,7 +53,7 @@ If OneDrive is unavailable, it falls back to:
 Use CLI flags:
 
 ```powershell
-python .\scanner.py --json-out .\reports\case-001.json --html-out .\reports\case-001.html
+python .\scanner.py --json-out .\reports\case-001.json --html-out .\reports\case-001.html --program-html-out .\reports\case-001-programs.html
 ```
 
 Or set an environment variable for default output:
@@ -80,10 +83,17 @@ Fast triage (skip file scan):
 python .\scanner.py --skip-files
 ```
 
+Skip unusual/unsigned program anomaly checks:
+
+```powershell
+python .\scanner.py --skip-program-anomalies
+```
+
 ## IOC format overview
 
 Rule arrays supported in `default_iocs.json`:
 - `process_rules`
+- `program_anomaly_rules`
 - `service_rules`
 - `registry_rules`
 - `file_rules`
@@ -96,6 +106,13 @@ Common fields:
 - `mode` (`wildcard`, `regex`, `glob`, `exact`)
 - `severity` (`critical|high|medium|low|info`)
 - `description`
+
+`program_anomaly_rules` supports:
+- Suspicious and trusted path patterns
+- Signature status buckets (critical vs unsigned)
+- Unusual executable name regexes
+- Suspicious command-line regexes
+- Custom process rules for anomaly scoring
 
 ## Operational tips
 
