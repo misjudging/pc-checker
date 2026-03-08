@@ -1,0 +1,229 @@
+{
+  "metadata": {
+    "name": "fivem-defensive-baseline",
+    "version": "2026-03-08",
+    "notes": "Starter IOC set for authorized forensic/admin checks. Keep this file updated from your own threat intel."
+  },
+  "process_rules": [
+    {
+      "id": "proc_cheatengine",
+      "pattern": "cheatengine*.exe",
+      "target_field": "name",
+      "mode": "wildcard",
+      "severity": "high",
+      "description": "Cheat Engine process name pattern"
+    },
+    {
+      "id": "proc_xenos",
+      "pattern": "xenos*.exe",
+      "target_field": "name",
+      "mode": "wildcard",
+      "severity": "high",
+      "description": "Xenos-style injector process name pattern"
+    },
+    {
+      "id": "proc_kdmapper",
+      "pattern": "kdmapper*.exe",
+      "target_field": "name",
+      "mode": "wildcard",
+      "severity": "critical",
+      "description": "Kernel driver mapping utility pattern"
+    },
+    {
+      "id": "proc_generic_injector",
+      "pattern": "*injector*.exe",
+      "target_field": "name",
+      "mode": "wildcard",
+      "severity": "medium",
+      "description": "Generic injector naming pattern"
+    },
+    {
+      "id": "proc_generic_spoofer",
+      "pattern": "*spoofer*.exe",
+      "target_field": "name",
+      "mode": "wildcard",
+      "severity": "high",
+      "description": "Generic hardware-ID spoofer naming pattern"
+    },
+    {
+      "id": "proc_generic_mapper",
+      "pattern": "*mapper*.exe",
+      "target_field": "name",
+      "mode": "wildcard",
+      "severity": "medium",
+      "description": "Generic mapper tool naming pattern"
+    },
+    {
+      "id": "proc_cmdline_manualmap",
+      "pattern": "manual\\s*map|manualmap|mapdriver",
+      "target_field": "cmdline",
+      "mode": "regex",
+      "severity": "high",
+      "description": "Manual map / map-driver keyword in command line"
+    },
+    {
+      "id": "proc_cmdline_fivem_target",
+      "pattern": "fivem[_\\-\\s]*gta|citizenfx|gta5\\.exe",
+      "target_field": "cmdline",
+      "mode": "regex",
+      "severity": "medium",
+      "description": "Process command line references FiveM/GTA target"
+    }
+  ],
+  "service_rules": [
+    {
+      "id": "svc_dbk_driver",
+      "pattern": "dbk*",
+      "target_field": "name",
+      "mode": "wildcard",
+      "severity": "high",
+      "description": "Cheat-engine associated DBK driver-like service name"
+    },
+    {
+      "id": "svc_iqvw",
+      "pattern": "iqvw64e*",
+      "target_field": "name",
+      "mode": "wildcard",
+      "severity": "critical",
+      "description": "Intel vulnerable driver family commonly abused for bypass workflows"
+    },
+    {
+      "id": "svc_generic_mapper",
+      "pattern": "*mapper*",
+      "target_field": "name",
+      "mode": "wildcard",
+      "severity": "medium",
+      "description": "Service name contains mapper-like naming"
+    },
+    {
+      "id": "svc_path_user_profile",
+      "pattern": "*\\Users\\*\\*",
+      "target_field": "path",
+      "mode": "wildcard",
+      "severity": "medium",
+      "description": "Service binary path resolves into user profile (suspicious)"
+    }
+  ],
+  "registry_rules": [
+    {
+      "id": "reg_startup_injector",
+      "pattern": "*injector*",
+      "target_field": "data",
+      "mode": "wildcard",
+      "severity": "high",
+      "description": "Startup entry references injector keyword"
+    },
+    {
+      "id": "reg_startup_spoofer",
+      "pattern": "*spoofer*",
+      "target_field": "data",
+      "mode": "wildcard",
+      "severity": "high",
+      "description": "Startup entry references spoofer keyword"
+    },
+    {
+      "id": "reg_startup_cheat",
+      "pattern": "*cheat*",
+      "target_field": "data",
+      "mode": "wildcard",
+      "severity": "medium",
+      "description": "Startup entry references cheat keyword"
+    },
+    {
+      "id": "reg_startup_manualmap",
+      "pattern": "manual\\s*map|kdmapper|dbk|xenos",
+      "target_field": "data",
+      "mode": "regex",
+      "severity": "high",
+      "description": "Startup entry references known bypass/injection terms"
+    }
+  ],
+  "file_rules": [
+    {
+      "id": "file_appdata_eulen",
+      "pattern": "%APPDATA%\\*eulen*\\**",
+      "mode": "glob",
+      "severity": "high",
+      "description": "Artifact path contains eulen-like naming under AppData"
+    },
+    {
+      "id": "file_appdata_lynx",
+      "pattern": "%APPDATA%\\*lynx*\\**",
+      "mode": "glob",
+      "severity": "high",
+      "description": "Artifact path contains lynx-like naming under AppData"
+    },
+    {
+      "id": "file_temp_injector",
+      "pattern": "%LOCALAPPDATA%\\Temp\\*inject*\\**",
+      "mode": "glob",
+      "severity": "medium",
+      "description": "Temporary injector-named working directory"
+    },
+    {
+      "id": "file_temp_mapper",
+      "pattern": "%LOCALAPPDATA%\\Temp\\*mapper*\\**",
+      "mode": "glob",
+      "severity": "medium",
+      "description": "Temporary mapper-named working directory"
+    },
+    {
+      "id": "file_desktop_spoofer",
+      "pattern": "%USERPROFILE%\\Desktop\\*spoofer*.*",
+      "mode": "glob",
+      "severity": "high",
+      "description": "Desktop file name contains spoofer keyword"
+    },
+    {
+      "id": "file_downloads_cheat",
+      "pattern": "%USERPROFILE%\\Downloads\\*cheat*.*",
+      "mode": "glob",
+      "severity": "medium",
+      "description": "Downloads file name contains cheat keyword"
+    },
+    {
+      "id": "file_driver_iqvw",
+      "pattern": "%WINDIR%\\System32\\drivers\\iqvw64e.sys",
+      "mode": "exact",
+      "severity": "critical",
+      "description": "Vulnerable iqvw64e driver file exists"
+    },
+    {
+      "id": "file_driver_dbk64",
+      "pattern": "%WINDIR%\\System32\\drivers\\dbk64.sys",
+      "mode": "exact",
+      "severity": "high",
+      "description": "DBK64 driver file exists"
+    },
+    {
+      "id": "file_driver_kprocesshacker",
+      "pattern": "%WINDIR%\\System32\\drivers\\KProcessHacker*.sys",
+      "mode": "glob",
+      "severity": "medium",
+      "description": "Kernel helper driver commonly paired with memory tooling"
+    }
+  ],
+  "boot_rules": [
+    {
+      "id": "boot_testsigning_on",
+      "key": "testsigning",
+      "expected": "yes",
+      "severity": "critical",
+      "description": "Windows test signing is enabled"
+    },
+    {
+      "id": "boot_nointegritychecks_on",
+      "key": "nointegritychecks",
+      "expected": "yes",
+      "severity": "critical",
+      "description": "Integrity checks disabled in boot configuration"
+    },
+    {
+      "id": "boot_debug_on",
+      "key": "debug",
+      "expected": "yes",
+      "severity": "high",
+      "description": "Kernel debug mode enabled in boot configuration"
+    }
+  ]
+}
